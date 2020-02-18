@@ -1,6 +1,6 @@
 #1   Подсчитайте средний возраст пользователей в таблице users
 
-SELECT SUM(TIMESTAMPDIFF(YEAR, birthday, NOW())) FROM vk.profiles
+SELECT AVG(TIMESTAMPDIFF(YEAR, birthday, NOW())) FROM vk.profiles
 #2 Подсчитайте количество дней рождения, которые приходятся на каждый из дней недели. 
 #Следует учесть, что необходимы дни недели текущего года, а не года рождения.
 

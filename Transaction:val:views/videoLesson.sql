@@ -78,3 +78,25 @@ CALL fill_month();
 #4
 #(по желанию) Пусть имеется любая таблица с календарным полем created_at. Создайте запрос, который удаляет устаревшие записи из таблицы, 
 #оставляя только 5 самых свежих записей.
+
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS leave_five_fresh//
+CREATE PROCEDURE leave_five_fresh()
+BEGIN
+	DECLARE rows_num INT;
+	SELECT COUNT(*)INTO rows_num FROM users;
+	WHILE rows_num > 5 DO
+		DELETE FROM users ORDER BY  created_at DESC LIMIT 1;
+		SELECT COUNT(*)INTO rows_num FROM users;
+	END WHILE;
+	
+	
+
+END//
+
+DELIMITER ;
+
+CALL leave_five_fresh();
+

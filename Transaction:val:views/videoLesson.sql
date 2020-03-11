@@ -34,27 +34,43 @@ SELECT * FROM name_and_catalog;
 #за август 2018 года '2018-08-01', '2016-08-04', '2018-08-16' и 2018-08-17. Составьте запрос, который выводит полный список дат за август, 
 #выставляя в соседнем поле значение 1, если дата присутствует в исходном таблице и 0, если она отсутствует.
 
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS fill_month//
+CREATE PROCEDURE fill_month()
+BEGIN
+	
+DECLARE cur_day DATETIME;
+
+DROP TEMPORARY TABLE IF EXISTS august;
 CREATE TEMPORARY TABLE august (
-`data` DATETIME,
+`date` VARCHAR(255),
 is_created_at  BIT(1) );
 
-SET @cur_day = '2020-08-01';
-
-PREPARE insert_date FROM 'INSERT INTO august
-VALUES(?, ?);
-';
-
+DROP VIEW IF EXISTS august_users;
 CREATE VIEW august_users AS 
-SELECT created_at FROM users WHERE DATE_FORMAT(created_at, '%c') = 8;
+SELECT DATE_FORMAT(created_at, '%e, %b') as created_at FROM users WHERE DATE_FORMAT(created_at, '%c') = 8;
 
-SELECT DATE_FORMAT( @cur_day, '%e, %b');
+SET cur_day = '2020-08-01';
 
-SELECT created_at INTO @date_exsist FROM august_users WHERE DATE_FORMAT(created_at, '%e, %b') = @cur_day;
+WHILE cur_day < '2020-08-31' DO
+SET @date_exsist = 0;
+SELECT created_at INTO @date_exsist  FROM august_users  WHERE created_at = DATE_FORMAT(cur_day, '%e, %b') LIMIT 1;
+SET @date_exsist = @date_exsist > 0;
+INSERT INTO august VALUES(DATE_FORMAT(cur_day, '%e %b') , @date_exsist);
+SET cur_day = cur_day + INTERVAL 1 DAY ;
+END WHILE ;
 
 
-EXECUTE insert_date USING @cur_day, @is_created_at;
+SELECT * from august;
 
- SET @cur_day = '2020-08-01' + INTERVAL 1 DAY ;
+END//
+
+DELIMITER ;
+
+CALL fill_month();
+
 
 
 
